@@ -444,18 +444,14 @@ mod printing {
     #[cfg_attr(doc_cfg, doc(cfg(feature = "printing")))]
     impl ToTokens for FieldsNamed {
         fn to_tokens(&self, tokens: &mut TokenStream) {
-            self.brace_token.surround(tokens, |tokens| {
-                self.named.to_tokens(tokens);
-            });
+            self.brace_token.surround_tokens(tokens, &self.named);
         }
     }
 
     #[cfg_attr(doc_cfg, doc(cfg(feature = "printing")))]
     impl ToTokens for FieldsUnnamed {
         fn to_tokens(&self, tokens: &mut TokenStream) {
-            self.paren_token.surround(tokens, |tokens| {
-                self.unnamed.to_tokens(tokens);
-            });
+            self.paren_token.surround_tokens(tokens, &self.unnamed);
         }
     }
 

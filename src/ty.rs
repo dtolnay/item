@@ -1069,9 +1069,7 @@ mod printing {
     #[cfg_attr(doc_cfg, doc(cfg(feature = "printing")))]
     impl ToTokens for TypeSlice {
         fn to_tokens(&self, tokens: &mut TokenStream) {
-            self.bracket_token.surround(tokens, |tokens| {
-                self.elem.to_tokens(tokens);
-            });
+            self.bracket_token.surround_tokens(tokens, &self.elem);
         }
     }
 
@@ -1141,9 +1139,7 @@ mod printing {
     #[cfg_attr(doc_cfg, doc(cfg(feature = "printing")))]
     impl ToTokens for TypeTuple {
         fn to_tokens(&self, tokens: &mut TokenStream) {
-            self.paren_token.surround(tokens, |tokens| {
-                self.elems.to_tokens(tokens);
-            });
+            self.paren_token.surround_tokens(tokens, &self.elems);
         }
     }
 
@@ -1173,18 +1169,14 @@ mod printing {
     #[cfg_attr(doc_cfg, doc(cfg(feature = "printing")))]
     impl ToTokens for TypeGroup {
         fn to_tokens(&self, tokens: &mut TokenStream) {
-            self.group_token.surround(tokens, |tokens| {
-                self.elem.to_tokens(tokens);
-            });
+            self.group_token.surround_tokens(tokens, &self.elem);
         }
     }
 
     #[cfg_attr(doc_cfg, doc(cfg(feature = "printing")))]
     impl ToTokens for TypeParen {
         fn to_tokens(&self, tokens: &mut TokenStream) {
-            self.paren_token.surround(tokens, |tokens| {
-                self.elem.to_tokens(tokens);
-            });
+            self.paren_token.surround_tokens(tokens, &self.elem);
         }
     }
 

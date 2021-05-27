@@ -205,13 +205,13 @@ mod printing {
             self.bang_token.to_tokens(tokens);
             match &self.delimiter {
                 MacroDelimiter::Paren(paren) => {
-                    paren.surround(tokens, |tokens| self.tokens.to_tokens(tokens));
+                    paren.surround_tokens(tokens, &self.tokens);
                 }
                 MacroDelimiter::Brace(brace) => {
-                    brace.surround(tokens, |tokens| self.tokens.to_tokens(tokens));
+                    brace.surround_tokens(tokens, &self.tokens);
                 }
                 MacroDelimiter::Bracket(bracket) => {
-                    bracket.surround(tokens, |tokens| self.tokens.to_tokens(tokens));
+                    bracket.surround_tokens(tokens, &self.tokens);
                 }
             }
         }

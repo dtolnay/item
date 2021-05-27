@@ -837,9 +837,7 @@ mod printing {
     impl ToTokens for PatTuple {
         fn to_tokens(&self, tokens: &mut TokenStream) {
             tokens.append_all(self.attrs.outer());
-            self.paren_token.surround(tokens, |tokens| {
-                self.elems.to_tokens(tokens);
-            });
+            self.paren_token.surround_tokens(tokens, &self.elems);
         }
     }
 
@@ -895,9 +893,7 @@ mod printing {
     impl ToTokens for PatSlice {
         fn to_tokens(&self, tokens: &mut TokenStream) {
             tokens.append_all(self.attrs.outer());
-            self.bracket_token.surround(tokens, |tokens| {
-                self.elems.to_tokens(tokens);
-            });
+            self.bracket_token.surround_tokens(tokens, &self.elems);
         }
     }
 

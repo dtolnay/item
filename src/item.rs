@@ -2934,9 +2934,7 @@ mod printing {
             self.ident.to_tokens(tokens);
             self.generics.to_tokens(tokens);
             self.generics.where_clause.to_tokens(tokens);
-            self.brace_token.surround(tokens, |tokens| {
-                self.variants.to_tokens(tokens);
-            });
+            self.brace_token.surround_tokens(tokens, &self.variants);
         }
     }
 
@@ -3047,13 +3045,13 @@ mod printing {
             self.ident.to_tokens(tokens);
             match &self.mac.delimiter {
                 MacroDelimiter::Paren(paren) => {
-                    paren.surround(tokens, |tokens| self.mac.tokens.to_tokens(tokens));
+                    paren.surround_tokens(tokens, &self.mac.tokens);
                 }
                 MacroDelimiter::Brace(brace) => {
-                    brace.surround(tokens, |tokens| self.mac.tokens.to_tokens(tokens));
+                    brace.surround_tokens(tokens, &self.mac.tokens);
                 }
                 MacroDelimiter::Bracket(bracket) => {
-                    bracket.surround(tokens, |tokens| self.mac.tokens.to_tokens(tokens));
+                    bracket.surround_tokens(tokens, &self.mac.tokens);
                 }
             }
             self.semi_token.to_tokens(tokens);
@@ -3106,9 +3104,7 @@ mod printing {
     #[cfg_attr(doc_cfg, doc(cfg(feature = "printing")))]
     impl ToTokens for UseGroup {
         fn to_tokens(&self, tokens: &mut TokenStream) {
-            self.brace_token.surround(tokens, |tokens| {
-                self.items.to_tokens(tokens);
-            });
+            self.brace_token.surround_tokens(tokens, &self.items);
         }
     }
 

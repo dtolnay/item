@@ -711,9 +711,7 @@ mod printing {
 
                     // ERROR CORRECTION: Add braces to make sure that the
                     // generated code is valid.
-                    _ => token::Brace::default().surround(tokens, |tokens| {
-                        e.to_tokens(tokens);
-                    }),
+                    _ => token::Brace::default().surround_tokens(tokens, e),
                 },
             }
         }
@@ -797,9 +795,7 @@ mod printing {
     #[cfg_attr(doc_cfg, doc(cfg(feature = "printing")))]
     impl ToTokens for ParenthesizedGenericArguments {
         fn to_tokens(&self, tokens: &mut TokenStream) {
-            self.paren_token.surround(tokens, |tokens| {
-                self.inputs.to_tokens(tokens);
-            });
+            self.paren_token.surround_tokens(tokens, &self.inputs);
             self.output.to_tokens(tokens);
         }
     }

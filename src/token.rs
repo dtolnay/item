@@ -543,7 +543,19 @@ macro_rules! define_delimiters {
                 where
                     F: FnOnce(&mut TokenStream),
                 {
-                    printing::delim($token, self.span, tokens, f);
+                    let mut inner = TokenStream::new();
+                    f(&mut inner);
+                    printing::delim_append($token, self.span, tokens, inner);
+                }
+
+                #[cfg(feature = "printing")]
+                pub(crate) fn surround_tokens<T>(&self, tokens: &mut TokenStream, to_tokens: &T)
+                where
+                    T: ToTokens,
+                {
+                    let mut inner = TokenStream::new();
+                    to_tokens.to_tokens(&mut inner);
+                    printing::delim_append($token, self.span, tokens, inner);
                 }
             }
 
@@ -993,10 +1005,7 @@ pub mod printing {
         tokens.append(Ident::new(s, span));
     }
 
-    pub fn delim<F>(s: &str, span: Span, tokens: &mut TokenStream, f: F)
-    where
-        F: FnOnce(&mut TokenStream),
-    {
+    pub fn delim_append(s: &str, span: Span, tokens: &mut TokenStream, inner: TokenStream) {
         let delim = match s {
             "(" => Delimiter::Parenthesis,
             "[" => Delimiter::Bracket,
@@ -1004,8 +1013,6 @@ pub mod printing {
             " " => Delimiter::None,
             _ => panic!("unknown delimiter: {}", s),
         };
-        let mut inner = TokenStream::new();
-        f(&mut inner);
         let mut g = Group::new(delim, inner);
         g.set_span(span);
         tokens.append(g);

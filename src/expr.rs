@@ -2884,9 +2884,7 @@ pub(crate) mod printing {
     #[cfg(feature = "full")]
     fn wrap_bare_struct(tokens: &mut TokenStream, e: &Expr) {
         if let Expr::Struct(_) = *e {
-            token::Paren::default().surround(tokens, |tokens| {
-                e.to_tokens(tokens);
-            });
+            token::Paren::default().surround_tokens(tokens, e);
         } else {
             e.to_tokens(tokens);
         }
@@ -2935,9 +2933,7 @@ pub(crate) mod printing {
         fn to_tokens(&self, tokens: &mut TokenStream) {
             outer_attrs_to_tokens(&self.attrs, tokens);
             self.func.to_tokens(tokens);
-            self.paren_token.surround(tokens, |tokens| {
-                self.args.to_tokens(tokens);
-            })
+            self.paren_token.surround_tokens(tokens, &self.args);
         }
     }
 
@@ -2950,9 +2946,7 @@ pub(crate) mod printing {
             self.dot_token.to_tokens(tokens);
             self.method.to_tokens(tokens);
             self.turbofish.to_tokens(tokens);
-            self.paren_token.surround(tokens, |tokens| {
-                self.args.to_tokens(tokens);
-            });
+            self.paren_token.surround_tokens(tokens, &self.args);
         }
     }
 
@@ -3055,9 +3049,7 @@ pub(crate) mod printing {
                     else_.to_tokens(tokens);
                 }
                 _ => {
-                    token::Brace::default().surround(tokens, |tokens| {
-                        else_.to_tokens(tokens);
-                    });
+                    token::Brace::default().surround_tokens(tokens, else_);
                 }
             }
         }
@@ -3295,9 +3287,7 @@ pub(crate) mod printing {
         fn to_tokens(&self, tokens: &mut TokenStream) {
             outer_attrs_to_tokens(&self.attrs, tokens);
             self.expr.to_tokens(tokens);
-            self.bracket_token.surround(tokens, |tokens| {
-                self.index.to_tokens(tokens);
-            });
+            self.bracket_token.surround_tokens(tokens, &self.index);
         }
     }
 
@@ -3412,9 +3402,7 @@ pub(crate) mod printing {
     impl ToTokens for ExprGroup {
         fn to_tokens(&self, tokens: &mut TokenStream) {
             outer_attrs_to_tokens(&self.attrs, tokens);
-            self.group_token.surround(tokens, |tokens| {
-                self.expr.to_tokens(tokens);
-            });
+            self.group_token.surround_tokens(tokens, &self.expr);
         }
     }
 

@@ -266,9 +266,7 @@ mod printing {
                 },
                 Data::Enum(data) => {
                     self.generics.where_clause.to_tokens(tokens);
-                    data.brace_token.surround(tokens, |tokens| {
-                        data.variants.to_tokens(tokens);
-                    });
+                    data.brace_token.surround_tokens(tokens, &data.variants);
                 }
                 Data::Union(data) => {
                     self.generics.where_clause.to_tokens(tokens);
