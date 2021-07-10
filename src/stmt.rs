@@ -117,11 +117,7 @@ pub mod parsing {
                     break;
                 }
                 let s = parse_stmt(input, true)?;
-                let requires_semicolon = if let Stmt::Expr(s) = &s {
-                    expr::requires_terminator(s)
-                } else {
-                    false
-                };
+                let requires_semicolon = s.requires_semicolon();
                 stmts.push(s);
                 if input.is_empty() {
                     break;
@@ -148,6 +144,24 @@ pub mod parsing {
     impl Parse for Stmt {
         fn parse(input: ParseStream) -> Result<Self> {
             parse_stmt(input, false)
+        }
+    }
+
+    #[cfg_attr(doc_cfg, doc(cfg(feature = "parsing")))]
+    impl Stmt {
+        /// Parse a Stmt that may not require a semicolon.
+        /// TODO: expand this doc comment before merge - comments requested
+        pub fn parse_nosemi(input: ParseStream) -> Result<Self> {
+            parse_stmt(input, true)
+        }
+
+        /// If true, lack of a semicolon after this statement should always be a syntax error.
+        pub fn requires_semicolon(&self) -> bool {
+            if let Stmt::Expr(s) = self {
+                s.requires_terminator()
+            } else {
+                false
+            }
         }
     }
 
@@ -268,7 +282,7 @@ pub mod parsing {
             return Ok(Stmt::Semi(e, input.parse()?));
         }
 
-        if allow_nosemi || !expr::requires_terminator(&e) {
+        if allow_nosemi || !e.requires_terminator() {
             Ok(Stmt::Expr(e))
         } else {
             Err(input.error("expected semicolon"))

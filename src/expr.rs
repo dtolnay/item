@@ -1068,19 +1068,25 @@ ast_enum! {
 
 #[cfg(any(feature = "parsing", feature = "printing"))]
 #[cfg(feature = "full")]
-pub(crate) fn requires_terminator(expr: &Expr) -> bool {
-    // see https://github.com/rust-lang/rust/blob/2679c38fc/src/librustc_ast/util/classify.rs#L7-L25
-    match *expr {
-        Expr::Unsafe(..)
-        | Expr::Block(..)
-        | Expr::If(..)
-        | Expr::Match(..)
-        | Expr::While(..)
-        | Expr::Loop(..)
-        | Expr::ForLoop(..)
-        | Expr::Async(..)
-        | Expr::TryBlock(..) => false,
-        _ => true,
+impl Expr {
+    /// Check whether a terminator is needed for a given expression, eg a semicolon if used
+    /// in statement position.
+    ///
+    /// TODO: expand this doc comment before merge - comments requested
+    pub fn requires_terminator(&self) -> bool {
+        // see https://github.com/rust-lang/rust/blob/2679c38fc/src/librustc_ast/util/classify.rs#L7-L25
+        match *self {
+            Expr::Unsafe(..)
+            | Expr::Block(..)
+            | Expr::If(..)
+            | Expr::Match(..)
+            | Expr::While(..)
+            | Expr::Loop(..)
+            | Expr::ForLoop(..)
+            | Expr::Async(..)
+            | Expr::TryBlock(..) => false,
+            _ => true,
+        }
     }
 }
 
@@ -2826,7 +2832,7 @@ pub(crate) mod parsing {
                 fat_arrow_token: input.parse()?,
                 body: {
                     let body = input.call(expr_early)?;
-                    requires_comma = requires_terminator(&body);
+                    requires_comma = body.requires_terminator();
                     Box::new(body)
                 },
                 comma: {
@@ -3165,7 +3171,7 @@ pub(crate) mod printing {
                     // Ensure that we have a comma after a non-block arm, except
                     // for the last one.
                     let is_last = i == self.arms.len() - 1;
-                    if !is_last && requires_terminator(&arm.body) && arm.comma.is_none() {
+                    if !is_last && arm.body.requires_terminator() && arm.comma.is_none() {
                         <Token![,]>::default().to_tokens(tokens);
                     }
                 }
