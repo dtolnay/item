@@ -1,5 +1,7 @@
 use super::*;
 use crate::punctuated::Punctuated;
+use std::iter;
+use std::iter::FromIterator;
 
 ast_struct! {
     /// An enum variant.
@@ -123,6 +125,37 @@ impl IntoIterator for Fields {
             Fields::Unit => Punctuated::<Field, ()>::new().into_iter(),
             Fields::Named(f) => f.named.into_iter(),
             Fields::Unnamed(f) => f.unnamed.into_iter(),
+        }
+    }
+}
+
+impl FromIterator<Field> for Fields {
+    fn from_iter<I: IntoIterator<Item = Field>>(iter: I) -> Fields {
+        let mut iter = iter.into_iter();
+        if let Some(first) = iter.next() {
+            let is_named = first.ident.is_some();
+
+            let iter = iter::once(first).chain(iter);
+            let iter = iter.inspect(|x| {
+                debug_assert!(
+                    x.ident.is_some() == is_named,
+                    "expected input iterator to be either fully unnamed or fully named"
+                )
+            });
+
+            if is_named {
+                Fields::Named(FieldsNamed {
+                    brace_token: Default::default(),
+                    named: iter.collect(),
+                })
+            } else {
+                Fields::Unnamed(FieldsUnnamed {
+                    paren_token: Default::default(),
+                    unnamed: iter.collect(),
+                })
+            }
+        } else {
+            Fields::Unit
         }
     }
 }
